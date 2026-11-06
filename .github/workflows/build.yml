@@ -1,0 +1,50 @@
+name: Build macOS app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: 소스 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: Swift 앱 빌드
+        run: swift build -c release
+
+      - name: 앱 만들기
+        run: |
+          mkdir -p ChzzkDownloaderMac.app/Contents/MacOS
+          mkdir -p ChzzkDownloaderMac.app/Contents/Resources
+          cp .build/arm64-apple-macosx/release/ChzzkDownloaderMac ChzzkDownloaderMac.app/Contents/MacOS/
+          cat > ChzzkDownloaderMac.app/Contents/Info.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key>
+            <string>Chzzk Downloader</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.chzzk.downloader</string>
+            <key>CFBundleExecutable</key>
+            <string>ChzzkDownloaderMac</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>13.0</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: ZIP 압축
+        run: zip -r ChzzkDownloaderMac.zip ChzzkDownloaderMac.app
+
+      - name: 완성 앱 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChzzkDownloaderMac
+          path: ChzzkDownloaderMac.zip
