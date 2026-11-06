@@ -12,7 +12,10 @@ jobs:
     steps:
       - name: 소스 코드 가져오기
         uses: actions/checkout@v4
-
+        - name: Swift 소스 위치 맞추기
+          run: |
+            mkdir -p Sources/ChzzkDownloaderMac
+            cp main.swift Sources/ChzzkDownloaderMac/main.swift
       - name: Swift 앱 빌드
         run: swift build -c release
 
